@@ -190,3 +190,44 @@ module.exports.updateProfile = (req, res) => {
         });
     })
 };
+
+// Get all users
+module.exports.getAllUsers = (req, res) => {
+    console.log("Fetching all users...");
+
+    User.find({})
+        .then(users => {
+            if (!users || users.length === 0) {
+                return res.status(404).json({
+                    code: "USERS-EMPTY",
+                    message: "No users found.",
+                    userList: []
+                });
+            }
+
+            // Map users to a structured list
+            const userList = users.map(user => ({
+                firstName: user.firstName,
+                middleName: user.middleName,
+                lastName: user.lastName,
+                email: user.email,
+                contactNumber: user.contactNumber,
+                password: user.password,
+                isAdmin: user.isAdmin
+            }));
+
+            return res.status(200).json({
+                code: "ALL-USERS-RESULT",
+                message: "Users retrieved successfully.",
+                result: userList
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching users:", error);
+            return res.status(500).json({
+                code: "SERVER-ERROR",
+                message: "An error occurred while fetching users.",
+                error: error.message
+            });
+        });
+};
